@@ -11,4 +11,24 @@
     <module>Optimizer-web</module>
     <module>Optimizer-ejb</module>
   </modules>
+  
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.6</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.neo</groupId>
+            <artifactId>Commons</artifactId>
+            <version>1.2</version>
+        </dependency>
+    </dependencies>
+    
 </project>

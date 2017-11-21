@@ -14,7 +14,7 @@ public abstract class GenericDaoImpl<T, ID extends Serializable> implements
         GenericDao<T, ID> {
 
     private Class<T> persistentClass;
-    @PersistenceContext(unitName = "TCCConn")
+    @PersistenceContext(unitName = "TccConn")
     private EntityManager entityManager;
     private String fromClause;
 

@@ -5,17 +5,17 @@
  */
 package com.tcc.optimizer.processing;
 
-import com.tcc.pcv.AG;
-import com.tcc.pcv.Cidade;
-import com.tcc.pcv.GerenciadorTour;
-import com.tcc.pcv.PCVStrategy;
-import com.tcc.pcv.Populacao;
-import com.tcc.pcv.Tour;
-import com.tcc.pcv.calculadores_peso.CalculadorPeso_Default;
-import com.tcc.pcv.geradores_individuos.GeradorIndividuo_Default;
-import com.tcc.pcv.geradores_populacoes.GeradorPopulacao_Default;
-import com.tcc.pcv.mutadores.Mutador_Default;
-import java.util.ArrayList;
+import com.neo.commons.NeoLogger;
+import com.tcc.pcv_ejb.AG;
+import com.tcc.pcv_ejb.cities_info.Cidade;
+import com.tcc.pcv_ejb.GerenciadorTour;
+import com.tcc.pcv_ejb.PCVStrategy;
+import com.tcc.pcv_ejb.Populacao;
+import com.tcc.pcv_ejb.Tour;
+import com.tcc.pcv_ejb.calculadores_peso.CalculadorPeso_Regressao;
+import com.tcc.pcv_ejb.geradores_individuos.GeradorIndividuo_Default;
+import com.tcc.pcv_ejb.geradores_populacoes.GeradorPopulacao_Default;
+import com.tcc.pcv_ejb.mutadores.Mutador_Default;
 import java.util.List;
 
 /**
@@ -23,6 +23,7 @@ import java.util.List;
  * @author luiz
  */
 public class PCVRunner implements Runnable {
+    private static final NeoLogger LOGGER = NeoLogger.getLogger(PCVRunner.class);
 
     private final PCVStrategy strat;
     
@@ -31,21 +32,21 @@ public class PCVRunner implements Runnable {
     
     private boolean done = false;
     
-    public PCVRunner(List<Integer> citiesIds){
+    public PCVRunner(List<Cidade> cities){
         gt = new GerenciadorTour();
-        int popSize = citiesIds.size();
+        int popSize = cities.size();
         
         strat = new PCVStrategy(
             new Mutador_Default(), 
-            new CalculadorPeso_Default(), 
+            new CalculadorPeso_Regressao(), 
             new GeradorIndividuo_Default(popSize, gt),
             new GeradorPopulacao_Default(),
-            citiesIds.size()
+            popSize
         );
         
-        for (Integer cityId : citiesIds) {
-            Cidade city = getCityWithId(cityId);
+        for (Cidade city : cities) {
             gt.addCidade(city);
+            LOGGER.info("City: " + city.getId());
         }
         
         pop = new Populacao(popSize, true, strat);
@@ -70,10 +71,6 @@ public class PCVRunner implements Runnable {
     
     public Tour getFittestTour(){
         return pop.getFittest();
-    }
-    
-    private Cidade getCityWithId(Integer id) {
-        return null ERROR TODO;
     }
     
 }

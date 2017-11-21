@@ -21,6 +21,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>eclipselink</artifactId>
+            <version>2.5.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa.modelgen.processor</artifactId>
+            <version>2.5.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>7.0</version>
@@ -28,13 +40,15 @@
         </dependency>
         <dependency>
             <groupId>com.tcc</groupId>
-            <artifactId>PCV</artifactId>
+            <artifactId>PCV_ejb</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>com.neo</groupId>
-            <artifactId>Commons</artifactId>
-            <version>1.2</version>
+            <groupId>com.tcc</groupId>
+            <artifactId>Regressao_ejb</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>ejb</type>
         </dependency>
     </dependencies>
 
