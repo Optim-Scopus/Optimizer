@@ -112,7 +112,7 @@ public abstract class GenericDaoImpl<T, ID extends Serializable> implements
          Query q = this.getEntityManager().createQuery(
                 "SELECT x FROM " + this.getPersistentClass().getSimpleName() + " AS x WHERE "
                 + "x." + field + " = ?1");
-        q.setParameter(1, o);
+        q.setParameter("1", o);
         return q.getResultList();
     }
 

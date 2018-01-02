@@ -7,6 +7,7 @@ package com.tcc.optimizer.business;
 
 import com.tcc.optimizer.dao.PlacesDaoLocal;
 import com.tcc.optimizer.entity.places;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -28,5 +29,10 @@ public class PlacesHandler implements PlacesHandlerLocal {
     @Override
     public String getFullNameById(Long id) {
         return placesDao.getPlaceById(id).getFullname();
+    }
+
+    @Override
+    public List<places> getAllPlaces() {
+        return placesDao.readAll();
     }
 }

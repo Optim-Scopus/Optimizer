@@ -5,7 +5,7 @@
  */
 package com.tcc.optimizer.processing;
 
-import com.tcc.optimizer.dto.HistoryDto;
+import com.tcc.optimizer.dto.Parameters;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -15,5 +15,5 @@ import javax.ejb.Local;
  */
 @Local
 public interface OptimizerLocal {
-    public List<Long> optimize(List<List<Long>> listOfCategoriesOfIds, HistoryDto parameters);
+    public List<Long> optimize(List<List<Long>> listOfCategoriesOfIds, Parameters parameters);
 }

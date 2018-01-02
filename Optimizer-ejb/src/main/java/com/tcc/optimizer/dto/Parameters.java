@@ -9,7 +9,7 @@ package com.tcc.optimizer.dto;
  *
  * @author luiz
  */
-public class HistoryDto {
+public class Parameters {
     
     private int groupSize;
     
@@ -20,6 +20,12 @@ public class HistoryDto {
     private int issue;
     
     private int specialDate;
+    
+    private double timeArrival;
+    
+    private Float x;
+    
+    private Float y;
 
     public int getGroupSize() {
         return groupSize;
@@ -59,5 +65,29 @@ public class HistoryDto {
 
     public void setSpecialDate(int specialDate) {
         this.specialDate = specialDate;
+    }
+
+    public double getTimeArrival() {
+        return timeArrival;
+    }
+
+    public void setTimeArrival(double timeArrival) {
+        this.timeArrival = timeArrival;
+    }
+
+    public Float getX() {
+        return x;
+    }
+
+    public void setX(Float x) {
+        this.x = x;
+    }
+
+    public Float getY() {
+        return y;
+    }
+
+    public void setY(Float y) {
+        this.y = y;
     }
 }

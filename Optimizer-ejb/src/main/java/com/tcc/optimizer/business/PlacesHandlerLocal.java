@@ -6,6 +6,7 @@
 package com.tcc.optimizer.business;
 
 import com.tcc.optimizer.entity.places;
+import java.util.List;
 import javax.ejb.Local;
 
 /**
@@ -17,4 +18,6 @@ public interface PlacesHandlerLocal {
     
     public places getPlaceById(Long id);
     public String getFullNameById(Long id);
+    
+    public List<places> getAllPlaces();
 }

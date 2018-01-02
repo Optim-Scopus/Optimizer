@@ -7,6 +7,7 @@ package com.tcc.optimizer.dao;
 
 import com.neo.commons.NeoLogger;
 import com.tcc.optimizer.entity.places;
+import com.tcc.optimizer.entity.places_;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
 
@@ -29,8 +30,12 @@ public class PlacesDao extends GenericDaoImpl<places, Long> implements PlacesDao
         try {
             return (places) q.getSingleResult();
         } catch (Exception ex) {
-            LOGGER.error("No account found with specified password", ex);
-            return null;
+            LOGGER.error("No places found with specified id: " + id, ex);
+            try {
+                return (places)(Object)(places_) q.getSingleResult();
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 }

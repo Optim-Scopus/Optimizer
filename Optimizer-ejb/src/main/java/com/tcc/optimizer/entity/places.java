@@ -16,7 +16,7 @@ import javax.persistence.Id;
  *
  * @author luiz
  */
-@Entity(name="places")
+@Entity
 public class places implements Serializable {
 
     private static final long serialVersionUID = 1L;

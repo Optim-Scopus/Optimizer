@@ -8,13 +8,12 @@ package com.tcc.optimizer.processing;
 import com.neo.commons.NeoLogger;
 import com.neo.commons.Utils;
 import com.tcc.optimizer.business.PlacesHandlerLocal;
-import com.tcc.optimizer.dto.HistoryDto;
+import com.tcc.optimizer.dto.Parameters;
 import com.tcc.optimizer.entity.places;
-import com.tcc.pcv_ejb.cities_info.Cidade;
-import com.tcc.pcv_ejb.Tour;
-import com.tcc.pcv_ejb.cities_info.CidadeType;
+import com.tcc.pcv_ejb.dto.Cidade;
+import com.tcc.pcv_ejb.dto.CidadeType;
+import com.tcc.pcv_ejb.dto.RegressorInputDto;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -32,33 +31,35 @@ public class Optimizer implements OptimizerLocal {
     
     @EJB
     private PlacesHandlerLocal placesHandler;
+    
 
-    private List<List<Long>> permutations = null;
-    private List<PCVRunner> runners;
 
     @Override
-    public List<Long> optimize(List<List<Long>> listOfCategoriesOfIds, HistoryDto parameters) {
-        runners = new ArrayList<>();
-        LOGGER.info("Optimizing, permuting");
-        permutations = permute(listOfCategoriesOfIds);
-
-        LOGGER.info("Optimizing, starting threads");
-        for (List<Long> permutation : permutations) {
-            List<Cidade> cidades = getCidadesByIdsList(permutation, parameters);
-            PCVRunner runner = new PCVRunner(cidades);
-            runners.add(runner);
-            Thread t = new Thread(runner);
-            t.start();
+    public List<Long> optimize(List<List<Long>> listOfCategoriesOfIds, Parameters parameters) {
+        int i = 0;
+        List<List<Cidade>> categories = new ArrayList<>();
+        for (List<Long> CitiesIdsByCat : listOfCategoriesOfIds) {
+            List<Cidade> cidades = getCidadesByIdsList(CitiesIdsByCat, i);
+            categories.add(cidades);
+            i++;
         }
-
-        waitCalcs();
+        
+        Cidade userLocal = new Cidade(-1L, parameters.getX(), parameters.getY());
+        
+        setRegressorDto(parameters);
+        
+        PCVRunner runner = new PCVRunner(categories, parameters.getTimeArrival(), userLocal);
+        LOGGER.info("Optimizing, starting thread");
+        runner.run();
+        
+        //waitCalcs(runner);
 
         LOGGER.info("Optimizing, ended threads");
-        return findFittest().getCitiesAsIdsList();
+        return runner.getFittestTour().getCitiesAsIdsList();
 
     }
 
-    private List<List<Long>> permute(List<List<Long>> list) {
+    /*private List<List<Long>> permute(List<List<Long>> list) {
         List<List<Long>> result = new ArrayList<>();
         int numSets = list.size();
         Long[] tmpResult = new Long[numSets];
@@ -78,27 +79,19 @@ public class Optimizer implements OptimizerLocal {
             tmpResult[n] = i;
             permute(list, n + 1, tmpResult, result);
         }
-    }
+    }*/
 
-    private void waitCalcs() {
-        int n = permutations.size();
-
+    /*private void waitCalcs(PCVRunner runner) {
         while (true) {
-            int dones = 0;
-            for (PCVRunner runner : runners) {
-                if (runner.isDone()) {
-                    dones++;
-                }
-            }
-            if (dones == n) {
+            if (runner.isDone()) {
                 break;
             } else {
                 Utils.wait(100);
             }
         }
-    }
+    }*/
 
-    private Tour findFittest() {
+    /*private Tour findFittest() {
         Tour fittest = runners.get(0).getFittestTour();
         for (PCVRunner runner : runners) {
             // Loop through runners to find fittest
@@ -109,44 +102,59 @@ public class Optimizer implements OptimizerLocal {
         }
         return fittest;
 
-    }
+    }*/
     
-    private List<Cidade> getCidadesByIdsList(List<Long> citiesIds, HistoryDto parameters) {
+    private List<Cidade> getCidadesByIdsList(List<Long> citiesIds, int categoriaNLoop) {
         List<Cidade> returnList = new ArrayList<>();
         
         for (Long cityId : citiesIds) {
-            returnList.add(getCityWithId(cityId, parameters));
+            returnList.add(getCityWithId(cityId, categoriaNLoop));
         }
         
         return returnList;
     }
     
-    private Cidade getCityWithId(Long id, HistoryDto parameters) {
+    private Cidade getCityWithId(Long id, int categoriaNLoop) {
         
         places place = placesHandler.getPlaceById(id);
         
-        Cidade returnCity = null;
+        Cidade returnCity;
+        CidadeType type;
         switch (place.getCategory().intValue()) {
-            case 2: // Restaurant
-                returnCity = new Cidade(place.getId(), CidadeType.Restaurant, 
+                /*returnCity = new Cidade(place.getId(), CidadeType.Restaurant, 
                         place.getLatitude().intValue(), place.getLongitude().intValue(), 
-                        dayOfWeek(), parameters.getGroupSize(), parameters.getIssue(), parameters.getSpecialDate());
-                break;
+                        dow, parameters.getGroupSize(), parameters.getIssue(), parameters.getSpecialDate());*/
             case 3: // Bank
-                returnCity = new Cidade(place.getId(), CidadeType.Bank, 
+                type = CidadeType.Bank;
+                /*returnCity = new Cidade(place.getId(), CidadeType.Bank, 
                         place.getLatitude().intValue(), place.getLongitude().intValue(),
-                        dayOfWeek(), parameters.getTask(), parameters.getIssue(), true);
+                        dow, parameters.getTask(), parameters.getIssue(), true);*/
                 break;
             case 4: // Grocery
-                returnCity = new Cidade(place.getId(), CidadeType.Groceries, 
+                type = CidadeType.Groceries;
+                /*returnCity = new Cidade(place.getId(), CidadeType.Groceries, 
                         place.getLatitude().intValue(), place.getLongitude().intValue(),
-                        dayOfWeek(),parameters.getGroceriesSize(), parameters.getIssue());
+                        dow, parameters.getGroceriesSize(), parameters.getIssue());*/
                 break;
+            case 2: // Restaurant
             default:
+                type = CidadeType.Restaurant;
                 break;
         }
+        returnCity = new Cidade(place.getId(), place.getLatitude(), 
+                place.getLongitude(), type, categoriaNLoop);
         
         return returnCity;
+    }
+    
+    private void setRegressorDto(Parameters parameters){
+        RegressorInputDto dto = RegressorInputDto.getDto();
+        dto.setDow(dayOfWeek());
+        dto.setGroceriesSize(parameters.getGroceriesSize());
+        dto.setGroupSize(parameters.getGroupSize());
+        dto.setIssue(parameters.getIssue());
+        dto.setSpecialDate(parameters.getSpecialDate());
+        dto.setTask(parameters.getTask());
     }
     
     private int dayOfWeek() {
